@@ -123,6 +123,7 @@ class FastSpeech2(nn.Module):
         postnet_output = self.postnet(postnet_input) + mel_pred
 
         return mel_pred, postnet_output, d_prediction, src_mask, mel_mask, mel_len
+    
 
 
 if __name__ == "__main__":

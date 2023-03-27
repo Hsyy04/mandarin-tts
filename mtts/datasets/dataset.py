@@ -58,7 +58,12 @@ class Tokenizer:
 
         else:
             if isinstance(text, str):
-                tokens = [self.v2i[t] for t in text.split()]
+                tokens=[]
+                for t in text.split():
+                    if t in self.v2i:
+                        tokens.append(self.v2i[t])  
+                    else:
+                        tokens.append(0)
             else:
                 tokens = [self.v2i[t] for t in text]
         return torch.tensor(tokens)
