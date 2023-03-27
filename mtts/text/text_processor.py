@@ -21,7 +21,7 @@ class TextProcessor():
         name = segments[0]
         segments = segments[1:]
         if len(segments) != len(self.emb_tokenizers):
-            raise ValueError('Input text and emb_tokensizers are different, {segments}')
+            raise ValueError(f'Input text and emb_tokensizers are different, {segments}')
 
         seg_lens = [len(s.split()) for s in segments]
         n = max(seg_lens)
@@ -29,7 +29,7 @@ class TextProcessor():
         # if k != n and k != 1:
         # raise ValueError(f'Input segments should share the same length, but {k}!={n} for text {input}')
 
-        segments = [' '.join((s.split() * n)[:n]) if len(s.split()) != n else s for s in segments]
+        segments = [' '.join((s.split() * n)[:n]) if len(s.split()) != n else s for s in segments] # extend speaker to max_len for align to text&pinyin
         token_tensor = []
         for seg, tokenizer in zip(segments, self.emb_tokenizers):
             tokens = tokenizer.tokenize(seg)

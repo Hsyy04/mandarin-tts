@@ -20,7 +20,7 @@ class FS2TransformerDecoder(nn.Module):
             hidden_dim: int = 256,
             d_inner: int = 1024,
             dropout: float = 0.5,
-            max_len: int = 2048,  # for computing position table
+            max_len: int = 8192,  # for computing position table
     ):
         super(FS2TransformerDecoder, self).__init__()
 
@@ -56,7 +56,7 @@ class FS2TransformerDecoder(nn.Module):
         attn_mask = mask.unsqueeze(1).expand(-1, seq_len, -1)
 
         if input.shape[1] > self.max_len:
-            raise ValueError('inputs.shape[1] > self.max_len')
+            raise ValueError(f'inputs.shape[1]({input.shape[1]}) > self.max_len')
 
         pos_embed = self.position_enc[:, :seq_len, :].expand(batch_size, -1, -1)
 

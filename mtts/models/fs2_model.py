@@ -121,9 +121,21 @@ class FastSpeech2(nn.Module):
         mel_pred = self.mel_linear(decoder_output)
         postnet_input = torch.unsqueeze(mel_pred, 1)
         postnet_output = self.postnet(postnet_input) + mel_pred
-
         return mel_pred, postnet_output, d_prediction, src_mask, mel_mask, mel_len
 
+class FastSpeech2cls(nn.Module):
+    def __init__(self, config):
+        super(FastSpeech2cls, self).__init__()
+        # self.fast_speech = FastSpeech2(config = config)
+        self.cls_linear = nn.Linear(80, 2)
+
+    def forward(self,
+                input_mels, # [bs, len, 80]
+                ):
+        add_info = torch.sum(input_mels, dim=1) # [bs, 80]
+        out = self.cls_linear(add_info) # [bs, 2]
+        return out
+        
 
 if __name__ == "__main__":
     # Test

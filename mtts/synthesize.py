@@ -53,7 +53,7 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--input', type=str, default='input.txt')
     parser.add_argument('--duration', type=float, default=1.0)
     parser.add_argument('--output_dir', type=str, default='./outputs/')
-    parser.add_argument('--checkpoint', type=str, required=True, default='')
+    parser.add_argument('--checkpoint', type=str, required=True, default='/home/yyshao/toxic/xieyin-enhanced/mandarin-tts/mtts/models/checkpoint_1350000.pth.tar')
     parser.add_argument('-c', '--config', type=str, default='./config.yaml')
     parser.add_argument('-d', '--device', choices=['cuda', 'cpu'], type=str, default='cuda')
     args = parser.parse_args()
@@ -99,16 +99,20 @@ if __name__ == '__main__':
         max_src_len = torch.max(seq_len)
         output = model(tokens, seq_len, max_src_len=max_src_len, d_control=args.duration)
         mel_pred, mel_postnet, d_pred, src_mask, mel_mask, mel_len = output
+        print(mel_pred.shape)
+        print(mel_postnet.shape)
+        print(d_pred.shape)
+        print(mel_len.shape)
 
-        # convert to waveform using vocoder
-        mel_postnet = mel_postnet[0].transpose(0, 1).detach()
-        mel_postnet += config['fbank']['mel_mean']
-        wav = vocoder(mel_postnet)
-        if config['synthesis']['normalize']:
-            wav = normalize(wav)
-        else:
-            wav = to_int16(wav)
-        dst_file = os.path.join(args.output_dir, f'{name}.wav')
-        #np.save(dst_file+'.npy',mel_postnet.cpu().numpy())
-        logger.info(f'writing file to {dst_file}')
-        wavfile.write(dst_file, sr, wav)
+        # # convert to waveform using vocoder
+        # mel_postnet = mel_postnet[0].transpose(0, 1).detach()
+        # mel_postnet += config['fbank']['mel_mean']
+        # wav = vocoder(mel_postnet)
+        # if config['synthesis']['normalize']:
+        #     wav = normalize(wav)
+        # else:
+        #     wav = to_int16(wav)
+        # dst_file = os.path.join(args.output_dir, f'{name}.wav')
+        # #np.save(dst_file+'.npy',mel_postnet.cpu().numpy())
+        # logger.info(f'writing file to {dst_file}')
+        # wavfile.write(dst_file, sr, wav)

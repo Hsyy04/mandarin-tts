@@ -30,7 +30,7 @@ training:
   epochs: 100000
   grad_clip_thresh: 1.0
   acc_step: 1
-  checkpoint_path: "./checkpoints/"
+  checkpoint_path: "/home/yyshao/toxic/xieyin-enhanced/checkpoints/"
   log_path: "./log/"
   checkpoint_step: 5000
   synth_step: 5000

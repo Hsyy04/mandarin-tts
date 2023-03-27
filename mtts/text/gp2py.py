@@ -139,7 +139,7 @@ class TextNormal:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-t', '--text', type=str)
+    parser.add_argument('-t', '--text', type=str, default="为适应新的网络传播方式和读者阅读习惯")
     args = parser.parse_args()
     text = args.text
     tn = TextNormal('gp.vocab', 'py.vocab', add_sp1=True, fix_er=True)
