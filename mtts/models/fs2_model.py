@@ -3,6 +3,7 @@ from typing import List, Optional
 import torch
 import torch.nn as nn
 from torch import Tensor
+from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 from mtts.models.decoder import Decoder
 from mtts.models.encoder import FS2TransformerEncoder
@@ -124,17 +125,23 @@ class FastSpeech2(nn.Module):
 
         return mel_pred, postnet_output, d_prediction, src_mask, mel_mask, mel_len
     
-class FastSpeech2cls(nn.Module):
+class FastSpeech2rnncls(nn.Module):
     def __init__(self, config):
-        super(FastSpeech2cls, self).__init__()
+        super(FastSpeech2rnncls, self).__init__()
         # self.fast_speech = FastSpeech2(config = config)
-        self.cls_linear = nn.Linear(80, 2)
+        # self.conv1d_1 = nn.Conv1d(in_channels=80, out_channels=256, kernel_size=11, stride=2)
+        # self.conv1d_2 = nn.Conv1d(in_channels=256, out_channels=256, kernel_size=7, stride=2)
+        self.rnn = nn.LSTM(input_size = 80, hidden_size=256, num_layer=4, batch_first=True, dropout=0.5, bidirectional=True)
+        self.cls_linear = nn.Linear(512, 2)
 
     def forward(self,
                 input_mels, # [bs, len, 80]
+                input_len, 
                 ):
-        add_info = torch.sum(input_mels, dim=1) # [bs, 80]
-        out = self.cls_linear(add_info) # [bs, 2]
+        packed = pack_padded_sequence(input_mels, input_len, batch_first=True, enforce_sorted=False)
+        outputs, (h_n, c_n) = self.rnn(packed)
+        seq_unpacked, lens_unpacked = pad_packed_sequence(h_n, batch_first=True)
+        out = self.cls_linear(seq_unpacked)
         return out
 
 if __name__ == "__main__":
