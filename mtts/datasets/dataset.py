@@ -169,7 +169,7 @@ def pad_2d_tensor(x, n):
 
 def pad_mel(x, n):
     if x.shape[0] >= n:
-        return x
+        return x[:n, :]
     x = torch.cat([x, torch.zeros((n - x.shape[0], x.shape[1]), dtype=x.dtype)], 0)
     return x
 

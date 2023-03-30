@@ -126,21 +126,25 @@ class FastSpeech2(nn.Module):
         return mel_pred, postnet_output, d_prediction, src_mask, mel_mask, mel_len
     
 class FastSpeech2rnncls(nn.Module):
-    def __init__(self, config):
+    def __init__(self, device):
         super(FastSpeech2rnncls, self).__init__()
         # self.fast_speech = FastSpeech2(config = config)
         # self.conv1d_1 = nn.Conv1d(in_channels=80, out_channels=256, kernel_size=11, stride=2)
         # self.conv1d_2 = nn.Conv1d(in_channels=256, out_channels=256, kernel_size=7, stride=2)
-        self.rnn = nn.LSTM(input_size = 80, hidden_size=256, num_layer=4, batch_first=True, dropout=0.5, bidirectional=True)
+        self.rnn = nn.LSTM(input_size = 80, hidden_size=256, num_layers=4, dropout=0.5, bidirectional=True)
         self.cls_linear = nn.Linear(512, 2)
+        self.device = device
 
     def forward(self,
                 input_mels, # [bs, len, 80]
                 input_len, 
                 ):
-        packed = pack_padded_sequence(input_mels, input_len, batch_first=True, enforce_sorted=False)
+        packed = pack_padded_sequence(input_mels, input_len, enforce_sorted=False)
+        packed = packed.to(self.device)
         outputs, (h_n, c_n) = self.rnn(packed)
-        seq_unpacked, lens_unpacked = pad_packed_sequence(h_n, batch_first=True)
+        # print(h_n[-1,:,:].shape)
+        # seq_unpacked, lens_unpacked = pad_packed_sequence(h_n[-1,:,:])
+        seq_unpacked=torch.cat((h_n[-1,:,:], h_n[-2,:,:]),dim=-1) # 把最后的双向输出连起来
         out = self.cls_linear(seq_unpacked)
         return out
 
