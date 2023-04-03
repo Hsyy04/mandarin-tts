@@ -123,7 +123,7 @@ class FastSpeech2(nn.Module):
         postnet_input = torch.unsqueeze(mel_pred, 1)
         postnet_output = self.postnet(postnet_input) + mel_pred
 
-        return mel_pred, postnet_output, d_prediction, src_mask, mel_mask, mel_len
+        return mel_pred, postnet_output, d_prediction, src_mask, mel_mask, mel_len, encoder_output
     
 class FastSpeech2rnncls(nn.Module):
     def __init__(self, device):
