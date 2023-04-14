@@ -110,20 +110,21 @@ class FastSpeech2(nn.Module):
 
         encoder_output = self.encoder(input_seqs, src_mask)
 
-        if d_target is not None:
-            variance_adaptor_output, d_prediction, _, _ = self.variance_adaptor(encoder_output, src_mask, mel_mask,
-                                                                                d_target, max_mel_len, d_control)
-        else:
-            variance_adaptor_output, d_prediction, mel_len, mel_mask = self.variance_adaptor(
-                encoder_output, src_mask, mel_mask, d_target, max_mel_len, d_control)
+        # if d_target is not None:
+        #     variance_adaptor_output, d_prediction, _, _ = self.variance_adaptor(encoder_output, src_mask, mel_mask,
+        #                                                                         d_target, max_mel_len, d_control)
+        # else:
+        #     variance_adaptor_output, d_prediction, mel_len, mel_mask = self.variance_adaptor(
+        #         encoder_output, src_mask, mel_mask, d_target, max_mel_len, d_control)
 
-        decoder_output = self.decoder(variance_adaptor_output, mel_mask)
+        # decoder_output = self.decoder(variance_adaptor_output, mel_mask)
 
-        mel_pred = self.mel_linear(decoder_output)
-        postnet_input = torch.unsqueeze(mel_pred, 1)
-        postnet_output = self.postnet(postnet_input) + mel_pred
+        # mel_pred = self.mel_linear(decoder_output)
+        # postnet_input = torch.unsqueeze(mel_pred, 1)
+        # postnet_output = self.postnet(postnet_input) + mel_pred
 
-        return mel_pred, postnet_output, d_prediction, src_mask, mel_mask, mel_len, decoder_output
+        # return mel_pred, postnet_output, d_prediction, src_mask, mel_mask, mel_len, encoder_output
+        return encoder_output
     
 class FastSpeech2rnncls(nn.Module):
     def __init__(self, device):

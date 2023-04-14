@@ -15,11 +15,27 @@ class TextProcessor():
                 emb_tok = Tokenizer(conf[key]['vocab'])
                 self.emb_tokenizers += [emb_tok]
                 logger.info('processed emb {}'.format(conf[key]['_name']))
+    def _whole_sent_process(self, name, hanzi, pinyin, speaker):
+        segments = [hanzi, pinyin, speaker]
+        if len(segments) != len(self.emb_tokenizers):
+            raise ValueError(f'Input text and emb_tokensizers are different, {segments}')
+        # print(segments)
+        seg_lens = [len(s.split()) for s in segments]
+        n = max(seg_lens)
 
+        segments = [' '.join((s.split() * n)[:n]) if len(s.split()) != n else s for s in segments] # 长度不够n的重复几遍
+        token_tensor = []
+        for seg, tokenizer in zip(segments, self.emb_tokenizers):
+            tokens = tokenizer.tokenize(seg)
+            token_tensor.append(torch.unsqueeze(tokens, 0))
+        token_tensor = torch.cat(token_tensor, 0)
+        # print(token_tensor.shape)
+        return name, token_tensor
+    
     def _process(self, input: str):
         segments = input.split('|')
         name = segments[0]
-        segments = segments[1:]
+        segments = segments[1:]# 1: hanzi, 2: pinyin, 3: 说话风格代码
         if len(segments) != len(self.emb_tokenizers):
             raise ValueError(f'Input text and emb_tokensizers are different, {segments}')
 
@@ -35,10 +51,11 @@ class TextProcessor():
             tokens = tokenizer.tokenize(seg)
             token_tensor.append(torch.unsqueeze(tokens, 0))
         token_tensor = torch.cat(token_tensor, 0)
+        print(token_tensor.shape)
         return name, token_tensor
 
-    def __call__(self, input):
-        return self._process(input)
+    def __call__(self, *input):
+        return self._whole_sent_process(*input)
 
 
 if __name__ == '__main__':
